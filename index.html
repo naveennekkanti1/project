@@ -6,13 +6,19 @@
 async function login() {
   const res = await fetch("/api/login", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify({
-      username: u.value,
-      password: p.value
+      username: document.getElementById("u").value,
+      password: document.getElementById("p").value
     })
   });
 
-  if (res.ok) location.href = "dashboard.html";
-  else alert("Invalid login");
+  if (res.ok) {
+    window.location.href = "dashboard.html";
+  } else {
+    alert("Invalid username or password");
+  }
 }
 </script>
