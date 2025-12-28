@@ -1,0 +1,8 @@
+{
+  "name": "file-upload-vercel",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "mongodb": "^6.5.0"
+  }
+}
