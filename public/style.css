@@ -1,0 +1,430 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+/* Container wrapper for auth pages */
+body > h1:first-child,
+body > form:first-of-type {
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+/* Auth page container styling */
+body > h1:first-child ~ * {
+  max-width: 450px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+h1 {
+  background: white;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 30px 40px;
+  text-align: center;
+  color: #2d3748;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+h2 {
+  text-align: center;
+  color: #4a5568;
+  margin: 30px 0 20px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Form container styling */
+form {
+  background: white;
+  padding: 40px;
+  margin-bottom: 0;
+  text-align: left;
+}
+
+/* Auth forms specific */
+body > form[action*="/signup"],
+body > form[action*="/login"] {
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  margin-top: -1px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="file"],
+textarea {
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  background: #f7fafc;
+  font-family: inherit;
+}
+
+textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+input[type="file"] {
+  padding: 10px;
+  cursor: pointer;
+  background: white;
+}
+
+/* Remove extra line breaks */
+br {
+  display: none;
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 8px;
+}
+
+button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+button[type="submit"]:active {
+  transform: translateY(0);
+}
+
+/* Auth page links */
+p {
+  background: white;
+  padding: 20px 40px 30px;
+  text-align: center;
+  color: #718096;
+  font-size: 14px;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  margin-top: -1px;
+}
+
+p a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 5px;
+  transition: color 0.3s ease;
+}
+
+p a:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+/* Dashboard specific styling */
+body:has(#fileList) {
+  padding: 20px;
+}
+
+body:has(#fileList) > * {
+  max-width: 900px;
+  margin: 0 auto 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+}
+
+body:has(#fileList) h1 {
+  border-radius: 12px;
+  margin-bottom: 20px;
+  background: white;
+  box-shadow: none;
+}
+
+/* Header with logout */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+/* Logout button - FIXED */
+a[href="/logout"] {
+  display: inline-block;
+  padding: 10px 24px;
+  background: #ef4444;
+  color: white !important;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+a[href="/logout"]:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+/* Upload section tabs */
+.upload-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  background: #e2e8f0;
+  border: none;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  transition: all 0.3s ease;
+}
+
+.tab-button.active {
+  background: #f7fafc;
+  color: #667eea;
+  border-bottom: 2px solid #667eea;
+}
+
+.tab-button:hover {
+  background: #cbd5e0;
+}
+
+/* Upload forms */
+#uploadForm,
+#textUploadForm {
+  background: #f7fafc;
+  padding: 20px;
+  border-radius: 0 8px 8px 8px;
+  border: 2px solid #e2e8f0;
+  margin-bottom: 30px;
+}
+
+.upload-section {
+  display: none;
+}
+
+.upload-section.active {
+  display: block;
+}
+
+/* File list styling */
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  background: #f7fafc;
+  margin: 12px 0;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+li:hover {
+  background: #edf2f7;
+  border-color: #cbd5e0;
+}
+
+.file-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.file-name {
+  font-weight: 600;
+  color: #2d3748;
+  flex: 1;
+}
+
+.file-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.file-actions button,
+.file-actions a {
+  padding: 8px 16px;
+  background: #667eea;
+  color: white;
+  text-decoration: none;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.file-actions button:hover,
+.file-actions a:hover {
+  background: #764ba2;
+  transform: scale(1.05);
+}
+
+.file-actions button.copy-btn {
+  background: #10b981;
+}
+
+.file-actions button.copy-btn:hover {
+  background: #059669;
+}
+
+.file-actions button.copy-btn.copied {
+  background: #059669;
+}
+
+.file-actions button.toggle-btn {
+  background: #8b5cf6;
+}
+
+.file-actions button.toggle-btn:hover {
+  background: #7c3aed;
+}
+
+/* Text content display */
+.text-content {
+  margin-top: 12px;
+  padding: 16px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  max-height: 300px;
+  overflow-y: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #1f2937;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  display: none;
+}
+
+.text-content.show {
+  display: block;
+}
+
+/* Empty state for file list */
+#fileList:empty::after {
+  content: "No files uploaded yet";
+  display: block;
+  text-align: center;
+  color: #a0aec0;
+  font-style: italic;
+  padding: 40px;
+}
+
+/* Success message */
+.success-message {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+  display: none;
+}
+
+.success-message.show {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  body {
+    padding: 20px 10px;
+  }
+  
+  h1,
+  form,
+  p {
+    padding-left: 25px;
+    padding-right: 25px;
+  }
+  
+  body:has(#fileList) > * {
+    padding: 30px 20px;
+  }
+  
+  h1 {
+    font-size: 24px;
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .file-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .file-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  
+  .file-actions button,
+  .file-actions a {
+    flex: 1;
+    min-width: 80px;
+  }
+  
+  .upload-tabs {
+    flex-direction: column;
+  }
+  
+  .tab-button {
+    border-radius: 8px;
+  }
+}

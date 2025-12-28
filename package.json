@@ -1,18 +1,15 @@
 {
-  "name": "file-upload-vercel",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "mongodb": "^6.5.0"
+  "name": "fileApp",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
   },
-  "name": "file-upload-vercel",
-  "private": true,
-  "type": "module",
   "dependencies": {
-    "mongodb": "^6.5.0",
-    "formidable": "^3.5.1"
+    "bcrypt": "^5.1.1",
+    "express": "^4.22.1",
+    "express-session": "^1.18.2",
+    "mongodb": "^5.9.2",
+    "multer": "^2.0.2"
   }
-
 }
-
-
