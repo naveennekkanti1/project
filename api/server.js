@@ -47,7 +47,7 @@ app.post("/signup", async (req, res) => {
     const hashed = await bcrypt.hash(password, 10);
     await users.insertOne({ username, password: hashed });
 
-    res.redirect("/login.html");
+    res.redirect("/");
   } catch (err) {
     console.error(err);
     res.status(500).send("Server error");
