@@ -1,20 +1,20 @@
 <input type="file" id="file">
 <button onclick="upload()">Upload</button>
-<ul id="list"></ul>
 
 <script>
 async function upload() {
   const form = new FormData();
-  form.append("file", file.files[0]);
-  await fetch("/api/upload", { method: "POST", body: form });
-  loadFiles();
-}
+  form.append("file", document.getElementById("file").files[0]);
 
-async function loadFiles() {
-  const res = await fetch("/api/files");
-  const files = await res.json();
-  list.innerHTML = files.map(f => `<li>${f}</li>`).join("");
-}
+  const res = await fetch("/api/upload", {
+    method: "POST",
+    body: form
+  });
 
-loadFiles();
+  if (!res.ok) {
+    alert("Upload failed");
+  } else {
+    alert("Upload successful");
+  }
+}
 </script>

@@ -4,5 +4,15 @@
   "type": "module",
   "dependencies": {
     "mongodb": "^6.5.0"
+  },
+  "name": "file-upload-vercel",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "mongodb": "^6.5.0",
+    "formidable": "^3.5.1"
   }
+
 }
+
+
