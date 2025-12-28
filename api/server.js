@@ -1,7 +1,7 @@
 const express = require("express");
 const { MongoClient, ObjectId, Binary } = require("mongodb");
 const multer = require("multer");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const session = require("express-session");
 
 const app = express();
