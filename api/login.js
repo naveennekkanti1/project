@@ -6,11 +6,11 @@ export default async function handler(req, res) {
       return res.status(405).json({ message: "Method not allowed" });
     }
 
-    if (!req.body) {
-      return res.status(400).json({ message: "No body received" });
-    }
+    const { username, password } = req.body;
 
-    const { username, password } = JSON.parse(req.body);
+    if (!username || !password) {
+      return res.status(400).json({ message: "Missing credentials" });
+    }
 
     const db = await connectDB();
 
