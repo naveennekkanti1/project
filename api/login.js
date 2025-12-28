@@ -5,14 +5,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: "Method not allowed" });
   }
 
-  const body = JSON.parse(req.body);
-  const { username, password } = body;
+  const { username, password } = JSON.parse(req.body);
 
   const db = await connectDB();
 
   const user = await db.collection("users").findOne({
-    username: username,
-    password: password
+    username,
+    password
   });
 
   if (!user) {
