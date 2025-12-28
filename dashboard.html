@@ -1,0 +1,20 @@
+<input type="file" id="file">
+<button onclick="upload()">Upload</button>
+<ul id="list"></ul>
+
+<script>
+async function upload() {
+  const form = new FormData();
+  form.append("file", file.files[0]);
+  await fetch("/api/upload", { method: "POST", body: form });
+  loadFiles();
+}
+
+async function loadFiles() {
+  const res = await fetch("/api/files");
+  const files = await res.json();
+  list.innerHTML = files.map(f => `<li>${f}</li>`).join("");
+}
+
+loadFiles();
+</script>
