@@ -17,14 +17,12 @@ export default async function handler(req, res) {
     const form = formidable();
 
     form.parse(req, async (err, fields, files) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
+      if (err) return res.status(500).json({ error: err.message });
 
       const file = files.file;
-      if (!file) {
-        return res.status(400).json({ message: "No file uploaded" });
-      }
+      if (!file) return res.status(400).json({ message: "No file uploaded" });
+
+      const username = fields.username; // <-- must pass from frontend
 
       const buffer = fs.readFileSync(file[0].filepath);
 
@@ -32,13 +30,14 @@ export default async function handler(req, res) {
       await db.collection("files").insertOne({
         filename: file[0].originalFilename,
         data: buffer,
-        uploadedAt: new Date()
+        uploadedAt: new Date(),
+        username
       });
 
-      return res.status(200).json({ message: "File uploaded successfully" });
+      res.status(200).json({ message: "File uploaded successfully" });
     });
   } catch (err) {
     console.error("UPLOAD ERROR:", err);
-    return res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 }

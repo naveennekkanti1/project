@@ -1,20 +1,49 @@
 <input type="file" id="file">
 <button onclick="upload()">Upload</button>
+<ul id="fileList"></ul>
 
 <script>
+const username = "admin"; // replace with logged-in username
+
+async function loadFiles() {
+  const res = await fetch(`/api/files?username=${username}`);
+  const files = await res.json();
+  const list = document.getElementById("fileList");
+  list.innerHTML = "";
+
+  files.forEach(f => {
+    const li = document.createElement("li");
+    const downloadBtn = document.createElement("button");
+    downloadBtn.innerText = "Download";
+    downloadBtn.onclick = () => {
+      window.location.href = `/api/download?id=${f.id}`;
+    };
+    li.textContent = `${f.filename} (Uploaded: ${new Date(f.uploadedAt).toLocaleString()}) `;
+    li.appendChild(downloadBtn);
+    list.appendChild(li);
+  });
+}
+
 async function upload() {
+  const fileInput = document.getElementById("file");
+  if (fileInput.files.length === 0) return alert("Select a file");
+
   const form = new FormData();
-  form.append("file", document.getElementById("file").files[0]);
+  form.append("file", fileInput.files[0]);
+  form.append("username", username);
 
   const res = await fetch("/api/upload", {
     method: "POST",
     body: form
   });
 
-  if (!res.ok) {
-    alert("Upload failed");
-  } else {
+  if (!res.ok) alert("Upload failed");
+  else {
     alert("Upload successful");
+    loadFiles(); // refresh list
   }
 }
+
+// Load files on page load
+loadFiles();
 </script>
