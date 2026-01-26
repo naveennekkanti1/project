@@ -4,7 +4,6 @@
   <title>Dashboard</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Basic styles */
     .dashboard-header { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f5f5f5; }
     .upload-tabs { margin: 20px 0; }
     .tab-button { padding: 10px 20px; cursor: pointer; margin-right: 5px; }
@@ -19,6 +18,7 @@
     .text-content { width: 100%; height: 100px; margin-top: 10px; padding: 5px; resize: vertical; }
   </style>
 </head>
+
 <body>
   <div class="dashboard-header">
     <h1>File Dashboard</h1>
@@ -32,18 +32,20 @@
     <button class="tab-button" onclick="switchTab('text', event)">Create Text File</button>
   </div>
 
+  <!-- FILE UPLOAD -->
   <div id="fileUploadSection" class="upload-section active">
-    <form id="uploadForm" action="/api/upload" method="POST" enctype="multipart/form-data">
-      <input type="file" name="file" required>
-      <button type="submit">Upload File</button>
+    <form id="uploadForm">
+      <input type="file" id="fileInput" name="file" required>
+      <button type="button" id="uploadBtn" onclick="uploadFile()">Upload File</button>
     </form>
   </div>
 
+  <!-- TEXT FILE -->
   <div id="textUploadSection" class="upload-section">
     <form id="textUploadForm" onsubmit="uploadText(event)">
       <input type="text" name="filename" placeholder="File name (e.g., notes.txt)" required>
       <textarea name="content" placeholder="Enter your text content here..." required></textarea>
-      <button type="submit">Create Text File</button>
+      <button type="submit" id="textUploadBtn">Create Text File</button>
     </form>
   </div>
 
@@ -51,112 +53,107 @@
   <ul id="fileList"></ul>
 
   <script>
-    let currentTab = 'file';
-
     function switchTab(tab, event) {
-      currentTab = tab;
-      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
       event.target.classList.add('active');
       document.getElementById('fileUploadSection').classList.remove('active');
       document.getElementById('textUploadSection').classList.remove('active');
-      if(tab === 'file') document.getElementById('fileUploadSection').classList.add('active');
-      else document.getElementById('textUploadSection').classList.add('active');
+      document.getElementById(tab === 'file' ? 'fileUploadSection' : 'textUploadSection').classList.add('active');
     }
 
-    async function uploadText(event) {
-      event.preventDefault();
-      const form = event.target;
-      const filename = form.filename.value;
-      const content = form.content.value;
-      const blob = new Blob([content], { type: 'text/plain' });
-      const file = new File([blob], filename, { type: 'text/plain' });
+    /* FILE UPLOAD WITH STATUS */
+    async function uploadFile() {
+      const input = document.getElementById("fileInput");
+      const btn = document.getElementById("uploadBtn");
+
+      if (!input.files.length) return;
+
+      btn.disabled = true;
+      btn.textContent = "Uploading...";
+
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", input.files[0]);
 
       try {
-        const response = await fetch('/api/upload', { method: 'POST', body: formData });
-        if(response.ok) {
-          showSuccess('Text file created successfully!');
-          form.reset();
-          loadFiles();
+        const res = await fetch("/api/upload", { method: "POST", body: formData });
+        if (res.ok) {
+          showSuccess("Upload completed!");
+          setTimeout(() => location.reload(), 800);
         }
-      } catch (error) { console.error('Upload error:', error); }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    /* TEXT FILE UPLOAD WITH STATUS */
+    async function uploadText(event) {
+      event.preventDefault();
+
+      const btn = document.getElementById("textUploadBtn");
+      btn.disabled = true;
+      btn.textContent = "Uploading...";
+
+      const form = event.target;
+      const blob = new Blob([form.content.value], { type: 'text/plain' });
+      const file = new File([blob], form.filename.value, { type: 'text/plain' });
+
+      const fd = new FormData();
+      fd.append("file", file);
+
+      try {
+        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        if (res.ok) {
+          showSuccess("Text file created!");
+          setTimeout(() => location.reload(), 800);
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     async function loadFiles() {
       const res = await fetch("/api/files");
       const files = await res.json();
-      const fileList = document.getElementById("fileList");
-      fileList.innerHTML = "";
+      const list = document.getElementById("fileList");
+      list.innerHTML = "";
 
       files.forEach(file => {
-        const li = document.createElement('li');
-        const isText = file.mimetype && file.mimetype.toLowerCase() === 'text/plain';
+        const isText = file.mimetype === "text/plain";
+        const li = document.createElement("li");
 
         li.innerHTML = `
           <div class="file-item-header">
             <span class="file-name">${file.filename}</span>
             <div class="file-actions">
               ${isText ? `
-                <button onclick="toggleTextContent('${file.id}')">Preview / Edit</button>
-                <button onclick="copyText(event, '${file.id}')">Copy</button>
+                <button onclick="toggleText('${file.id}')">Preview / Edit</button>
+                <button onclick="copyText('${file.id}')">Copy</button>
                 <button onclick="saveText('${file.id}')">Save</button>
-              ` : ''}
+              ` : ""}
               <a href="/api/files/download/${file.id}">Download</a>
+              <button onclick="deleteFile('${file.id}')">Delete</button>
             </div>
           </div>
-          ${isText ? `<textarea id="content-${file.id}" class="text-content" readonly></textarea>` : ''}
+          ${isText ? `<textarea id="text-${file.id}" class="text-content" readonly></textarea>` : ""}
         `;
-        fileList.appendChild(li);
+        list.appendChild(li);
       });
     }
 
-    async function toggleTextContent(fileId) {
-      const ta = document.getElementById(`content-${fileId}`);
-      
-      if (!ta.value) {
-        try {
-          const res = await fetch(`/api/files/content/${fileId}`);
-          const data = await res.json();
-          ta.value = data.content || '';
-        } catch (err) { console.error('Error loading content:', err); return; }
+    async function deleteFile(id) {
+      if (!confirm("Delete this file?")) return;
+      const res = await fetch(`/api/files/delete/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        showSuccess("File deleted!");
+        setTimeout(() => location.reload(), 600);
       }
-
-      // Make textarea editable for editing
-      ta.readOnly = false;
-      ta.focus();
-    }
-
-    async function copyText(event, fileId) {
-      event.preventDefault();
-      const ta = document.getElementById(`content-${fileId}`);
-      await navigator.clipboard.writeText(ta.value);
-      showSuccess('Text copied to clipboard!');
-    }
-
-    async function saveText(fileId) {
-      const ta = document.getElementById(`content-${fileId}`);
-      const blob = new Blob([ta.value], { type: 'text/plain' });
-
-      // Get original filename
-      const filename = document.querySelector(`#content-${fileId}`).closest('li')
-                        .querySelector('.file-name').textContent;
-
-      const file = new File([blob], filename, { type: 'text/plain' });
-      const formData = new FormData();
-      formData.append('file', file);
-
-      try {
-        const res = await fetch(`/api/files/update/${fileId}`, { method: 'POST', body: formData });
-        if (res.ok) showSuccess('File updated successfully!');
-      } catch (err) { console.error('Update error:', err); }
     }
 
     function showSuccess(msg) {
-      const successDiv = document.getElementById('successMessage');
-      successDiv.textContent = msg;
-      successDiv.classList.add('show');
-      setTimeout(() => successDiv.classList.remove('show'), 3000);
+      const el = document.getElementById("successMessage");
+      el.textContent = msg;
+      el.classList.add("show");
+      setTimeout(() => el.classList.remove("show"), 3000);
     }
 
     window.onload = loadFiles;
