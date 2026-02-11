@@ -655,3 +655,19 @@ li:hover {
     display: none;
   }
 }
+
+
+.forgot-password {
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.forgot-password a {
+  font-size: 0.9rem;
+  color: #6c63ff;
+  text-decoration: none;
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
+}

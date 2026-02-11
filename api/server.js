@@ -104,6 +104,37 @@ app.post("/login", async (req, res) => {
   }
 });
 
+
+
+app.post("/forgot-password", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    const db = client.db(dbName);
+    const users = db.collection(usersCollection);
+
+    const user = await users.findOne({ username });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+
+    await users.updateOne(
+      { username },
+      { $set: { password: hashed } }
+    );
+
+    res.send("Password reset successful");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
 // =======================
 // Logout
 // =======================
