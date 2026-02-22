@@ -1,162 +1,766 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — FileVault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    .dashboard-header { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f5f5f5; }
-    .upload-tabs { margin: 20px 0; }
-    .tab-button { padding: 10px 20px; cursor: pointer; margin-right: 5px; }
-    .tab-button.active { background-color: #007bff; color: white; }
-    .upload-section { display: none; margin-bottom: 20px; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --blue:        #2563eb;
+      --blue-dark:   #1d4ed8;
+      --blue-light:  #eff6ff;
+      --blue-mid:    #dbeafe;
+      --slate-50:    #f8fafc;
+      --slate-100:   #f1f5f9;
+      --slate-200:   #e2e8f0;
+      --slate-300:   #cbd5e1;
+      --slate-400:   #94a3b8;
+      --slate-500:   #64748b;
+      --slate-600:   #475569;
+      --slate-700:   #334155;
+      --slate-800:   #1e293b;
+      --slate-900:   #0f172a;
+      --green:       #16a34a;
+      --green-light: #dcfce7;
+      --amber:       #d97706;
+      --amber-light: #fef3c7;
+      --red:         #dc2626;
+      --red-light:   #fee2e2;
+      --sidebar-w:   240px;
+      --font:        'Plus Jakarta Sans', sans-serif;
+      --mono:        'JetBrains Mono', monospace;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--slate-50);
+      color: var(--slate-800);
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    /* ═══ LAYOUT ═══ */
+    .layout {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    /* ═══ SIDEBAR ═══ */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      height: 100vh;
+      background: #fff;
+      border-right: 1px solid var(--slate-200);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 18px;
+      height: 60px;
+      border-bottom: 1px solid var(--slate-200);
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 17px;
+      color: var(--slate-900);
+      letter-spacing: -0.3px;
+      flex-shrink: 0;
+    }
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: var(--blue);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 10px;
+    }
+    .nav-section {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+      color: var(--slate-400);
+      padding: 10px 8px 5px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--slate-500);
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-family: var(--font);
+      transition: all .15s;
+      margin-bottom: 2px;
+    }
+    .nav-item:hover { color: var(--slate-800); background: var(--slate-100); }
+    .nav-item.active { color: var(--blue); background: var(--blue-light); font-weight: 700; }
+    .nav-item svg { flex-shrink: 0; }
+
+    .sidebar-bottom {
+      flex-shrink: 0;
+      padding: 10px;
+      border-top: 1px solid var(--slate-200);
+    }
+    .user-block {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+    }
+    .user-avatar {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .user-name { font-size: 13px; font-weight: 700; color: var(--slate-700); }
+    .user-sub  { font-size: 11px; color: var(--slate-400); }
+    .logout-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      font-size: 13px; font-weight: 600;
+      color: var(--red);
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .logout-btn:hover { background: var(--red-light); }
+
+    /* ═══ MAIN ═══ */
+    .main {
+      flex: 1;
+      min-width: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--slate-50);
+      display: flex;
+      flex-direction: column;
+    }
+    .main::-webkit-scrollbar { width: 5px; }
+    .main::-webkit-scrollbar-track { background: transparent; }
+    .main::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 99px; }
+
+    .topbar {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(248,250,252,.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--slate-200);
+      padding: 0 28px;
+      height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .topbar-title { font-size: 17px; font-weight: 800; color: var(--slate-900); letter-spacing: -0.3px; }
+    .topbar-date  { font-size: 13px; color: var(--slate-400); }
+
+    .content {
+      padding: 24px 28px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 1100px;
+      width: 100%;
+    }
+
+    /* ═══ STATS ═══ */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      width: 100%;
+    }
+    .stat-card {
+      background: #fff;
+      border: 1px solid var(--slate-200);
+      border-radius: 14px;
+      padding: 20px 22px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.04);
+      min-width: 0;
+    }
+    .stat-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.07); }
+    .stat-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .si-blue  { background: var(--blue-light);  color: var(--blue); }
+    .si-green { background: var(--green-light); color: var(--green); }
+    .si-amber { background: var(--amber-light); color: var(--amber); }
+    .stat-num   { font-size: 30px; font-weight: 800; color: var(--slate-900); letter-spacing: -1px; line-height: 1; }
+    .stat-label { font-size: 12.5px; color: var(--slate-400); font-weight: 500; margin-top: 5px; }
+
+    /* ═══ PANEL ═══ */
+    .panel {
+      background: #fff;
+      border: 1px solid var(--slate-200);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.04);
+      width: 100%;
+    }
+
+    /* tabs */
+    .panel-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--slate-200);
+      padding: 0 4px;
+    }
+    .tab {
+      padding: 14px 20px;
+      font-family: var(--font);
+      font-size: 13.5px; font-weight: 600;
+      color: var(--slate-400);
+      background: none; border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      margin-bottom: -1px;
+      transition: all .15s;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .tab:hover:not(.active) { color: var(--slate-600); }
+
+    .panel-body { padding: 22px; }
+
+    .upload-section { display: none; }
     .upload-section.active { display: block; }
-    .success-message { color: green; margin: 10px 0; display: none; }
-    .success-message.show { display: block; }
-    #fileList li { margin-bottom: 15px; list-style: none; border: 1px solid #ddd; padding: 10px; border-radius: 5px; }
-    .file-item-header { display: flex; justify-content: space-between; align-items: center; }
-    .file-actions button, .file-actions a { margin-left: 5px; }
-    .text-content { width: 100%; height: 100px; margin-top: 10px; padding: 5px; resize: vertical; }
+
+    /* drop zone */
+    .drop-zone {
+      border: 2px dashed var(--slate-200);
+      border-radius: 12px;
+      padding: 30px 20px;
+      text-align: center;
+      background: var(--slate-50);
+      cursor: pointer;
+      transition: all .2s;
+      margin-bottom: 14px;
+    }
+    .drop-zone:hover, .drop-zone.over { border-color: var(--blue); background: var(--blue-light); }
+    .drop-zone input { display: none; }
+    .dz-icon  { font-size: 30px; margin-bottom: 8px; }
+    .dz-title { font-size: 14.5px; font-weight: 700; color: var(--slate-700); margin-bottom: 4px; }
+    .dz-sub   { font-size: 13px; color: var(--slate-400); }
+    .dz-link  { color: var(--blue); font-weight: 600; }
+
+    .file-pill {
+      display: none;
+      align-items: center;
+      gap: 9px;
+      background: var(--blue-light);
+      border: 1.5px solid var(--blue-mid);
+      border-radius: 9px;
+      padding: 11px 14px;
+      margin-bottom: 14px;
+      font-size: 13.5px; font-weight: 600;
+      color: var(--blue);
+    }
+
+    /* fields */
+    .field {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--slate-200);
+      border-radius: 9px;
+      font-size: 14px;
+      font-family: var(--font);
+      color: var(--slate-800);
+      background: var(--slate-50);
+      transition: all .2s;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .field:focus { outline: none; border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+    .field::placeholder { color: var(--slate-300); }
+    textarea.field { min-height: 130px; resize: vertical; font-family: var(--mono); font-size: 13px; line-height: 1.7; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 10px 20px;
+      background: var(--blue); color: #fff;
+      border: none; border-radius: 9px;
+      font-family: var(--font); font-size: 14px; font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+      box-shadow: 0 2px 8px rgba(37,99,235,.2);
+    }
+    .btn:hover { background: var(--blue-dark); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(37,99,235,.3); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    /* ═══ FILES LIST ═══ */
+    .files-header {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--slate-200);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .files-title { font-size: 15px; font-weight: 700; color: var(--slate-800); }
+    .files-badge {
+      font-size: 12px; font-weight: 600;
+      color: var(--slate-500);
+      background: var(--slate-100);
+      border-radius: 99px;
+      padding: 3px 11px;
+    }
+
+    .files-list { list-style: none; }
+    .file-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 22px;
+      border-bottom: 1px solid var(--slate-100);
+      transition: background .12s;
+    }
+    .file-row:last-child { border-bottom: none; }
+    .file-row:hover { background: var(--slate-50); }
+
+    .file-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; flex-shrink: 0;
+    }
+    .fi-txt   { background: var(--blue-light); }
+    .fi-img   { background: #fce7f3; }
+    .fi-doc   { background: #dbeafe; }
+    .fi-zip   { background: #fef9c3; }
+    .fi-other { background: var(--slate-100); }
+
+    .file-meta { flex: 1; min-width: 0; }
+    .file-name { font-size: 13.5px; font-weight: 600; color: var(--slate-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-type { font-size: 11.5px; color: var(--slate-400); margin-top: 2px; font-family: var(--mono); }
+
+    .file-btns { display: flex; gap: 5px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+
+    .fbtn {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 6px 11px;
+      border: 1.5px solid var(--slate-200);
+      border-radius: 7px;
+      font-family: var(--font); font-size: 12px; font-weight: 600;
+      color: var(--slate-500);
+      background: #fff;
+      cursor: pointer; text-decoration: none;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .fbtn:hover { color: var(--blue); border-color: var(--blue-mid); background: var(--blue-light); }
+    .fbtn.del:hover { color: var(--red); border-color: #fca5a5; background: var(--red-light); }
+
+    /* preview textarea */
+    .preview-area {
+      display: none;
+      margin: 0 22px 14px;
+      padding: 14px;
+      background: var(--slate-50);
+      border: 1.5px solid var(--slate-200);
+      border-radius: 9px;
+      font-family: var(--mono); font-size: 12.5px; line-height: 1.7;
+      color: var(--slate-700);
+      min-height: 100px; max-height: 260px;
+      resize: vertical;
+      width: calc(100% - 44px);
+      transition: border-color .2s;
+    }
+    .preview-area:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+
+    /* empty state */
+    .empty { padding: 52px 20px; text-align: center; }
+    .empty-ico { font-size: 40px; margin-bottom: 12px; }
+    .empty h3  { font-size: 15px; font-weight: 700; color: var(--slate-500); margin-bottom: 5px; }
+    .empty p   { font-size: 13px; color: var(--slate-400); }
+
+    /* toast */
+    .toast {
+      position: fixed; bottom: 22px; right: 22px;
+      background: var(--slate-900); color: #fff;
+      padding: 12px 18px; border-radius: 10px;
+      font-size: 13.5px; font-weight: 600;
+      display: flex; align-items: center; gap: 9px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.2);
+      transform: translateY(70px); opacity: 0;
+      transition: all .28s cubic-bezier(.4,0,.2,1);
+      z-index: 9999; pointer-events: none;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; flex-shrink: 0; }
+    .toast.err .toast-dot { background: #f87171; }
   </style>
 </head>
-
 <body>
-  <div class="dashboard-header">
-    <h1>File Dashboard</h1>
-    <a href="/logout">Logout</a>
-  </div>
 
-  <div id="successMessage" class="success-message"></div>
+<div class="layout">
 
-  <div class="upload-tabs">
-    <button class="tab-button active" onclick="switchTab('file', event)">Upload File</button>
-    <button class="tab-button" onclick="switchTab('text', event)">Create Text File</button>
-  </div>
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar">
+    <a href="/home.html" class="sidebar-logo">
+      <div class="logo-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      FileVault
+    </a>
 
-  <!-- FILE UPLOAD -->
-  <div id="fileUploadSection" class="upload-section active">
-    <form id="uploadForm">
-      <input type="file" id="fileInput" name="file" required>
-      <button type="button" id="uploadBtn" onclick="uploadFile()">Upload File</button>
-    </form>
-  </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Workspace</div>
+      <button class="nav-item active" id="nav-overview" onclick="navGo('overview')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </button>
+      <button class="nav-item" id="nav-files" onclick="navGo('files')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+        My Files
+      </button>
+      <div class="nav-section" style="margin-top:8px">Actions</div>
+      <button class="nav-item" id="nav-upload" onclick="navGo('upload'); switchTab('file')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload File
+      </button>
+      <button class="nav-item" id="nav-newtext" onclick="navGo('newtext'); switchTab('text')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        New Text File
+      </button>
+    </nav>
 
-  <!-- TEXT FILE -->
-  <div id="textUploadSection" class="upload-section">
-    <form id="textUploadForm" onsubmit="uploadText(event)">
-      <input type="text" name="filename" placeholder="File name (e.g., notes.txt)" required>
-      <textarea name="content" placeholder="Enter your text content here..." required></textarea>
-      <button type="submit" id="textUploadBtn">Create Text File</button>
-    </form>
-  </div>
+    <div class="sidebar-bottom">
+      <div class="user-block">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div>
+          <div class="user-name" id="userName">My Account</div>
+          <div class="user-sub">FileVault User</div>
+        </div>
+      </div>
+      <a href="/logout" class="logout-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </a>
+    </div>
+  </aside>
 
-  <h2>Your Files</h2>
-  <ul id="fileList"></ul>
+  <!-- ══ MAIN ══ -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">My Dashboard</div>
+        <div class="topbar-date" id="dateStr"></div>
+      </div>
+    </div>
 
-  <script>
-    function switchTab(tab, event) {
-      document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById('fileUploadSection').classList.remove('active');
-      document.getElementById('textUploadSection').classList.remove('active');
-      document.getElementById(tab === 'file' ? 'fileUploadSection' : 'textUploadSection').classList.add('active');
-    }
+    <div class="content">
 
-    /* FILE UPLOAD WITH STATUS */
-    async function uploadFile() {
-      const input = document.getElementById("fileInput");
-      const btn = document.getElementById("uploadBtn");
+      <!-- Stats -->
+      <div class="stats-row" id="sec-overview">
+        <div class="stat-card">
+          <div class="stat-icon si-blue">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+          </div>
+          <div>
+            <div class="stat-num" id="countTotal">—</div>
+            <div class="stat-label">Total Files</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon si-green">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <div>
+            <div class="stat-num" id="countText">—</div>
+            <div class="stat-label">Text Files</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon si-amber">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+          </div>
+          <div>
+            <div class="stat-num" id="countOther">—</div>
+            <div class="stat-label">Other Files</div>
+          </div>
+        </div>
+      </div>
 
-      if (!input.files.length) return;
+      <!-- Upload Panel -->
+      <div class="panel" id="sec-upload">
+        <div class="panel-tabs">
+          <button class="tab active" id="tabFile" onclick="switchTab('file')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Upload File
+          </button>
+          <button class="tab" id="tabText" onclick="switchTab('text')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Create Text File
+          </button>
+        </div>
+        <div class="panel-body">
 
-      btn.disabled = true;
-      btn.textContent = "Uploading...";
+          <div id="secFile" class="upload-section active">
+            <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+              <input type="file" id="fileInput" onchange="onFileSelect()">
+              <div class="dz-icon">📂</div>
+              <div class="dz-title">Drop file here or <span class="dz-link">browse</span></div>
+              <div class="dz-sub">Any file type supported</div>
+            </div>
+            <div class="file-pill" id="filePill">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+              <span id="filePillText"></span>
+            </div>
+            <button class="btn" id="uploadBtn" onclick="doUpload()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload File
+            </button>
+          </div>
 
-      const formData = new FormData();
-      formData.append("file", input.files[0]);
+          <div id="secText" class="upload-section">
+            <form onsubmit="doTextUpload(event)">
+              <input class="field" type="text" name="filename" placeholder="Filename (e.g. notes.txt)" required>
+              <textarea class="field" name="content" placeholder="Type your content here…" required></textarea>
+              <button class="btn" type="submit" id="textBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Save Text File
+              </button>
+            </form>
+          </div>
 
-      try {
-        const res = await fetch("/api/upload", { method: "POST", body: formData });
-        if (res.ok) {
-          showSuccess("Upload completed!");
-          setTimeout(() => location.reload(), 800);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
+        </div>
+      </div>
 
-    /* TEXT FILE UPLOAD WITH STATUS */
-    async function uploadText(event) {
-      event.preventDefault();
+      <!-- Files list -->
+      <div class="panel" id="sec-files">
+        <div class="files-header">
+          <span class="files-title">My Files</span>
+          <span class="files-badge" id="filesBadge">0 files</span>
+        </div>
+        <ul class="files-list" id="fileList">
+          <li><div class="empty"><div class="empty-ico">📂</div><h3>No files yet</h3><p>Upload a file or create a text file to get started.</p></div></li>
+        </ul>
+      </div>
 
-      const btn = document.getElementById("textUploadBtn");
-      btn.disabled = true;
-      btn.textContent = "Uploading...";
+    </div>
+  </main>
+</div>
 
-      const form = event.target;
-      const blob = new Blob([form.content.value], { type: 'text/plain' });
-      const file = new File([blob], form.filename.value, { type: 'text/plain' });
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div class="toast-dot"></div>
+  <span id="toastMsg"></span>
+</div>
 
-      const fd = new FormData();
-      fd.append("file", file);
+<script>
+  /* Date */
+  document.getElementById('dateStr').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 
-      try {
-        const res = await fetch("/api/upload", { method: "POST", body: fd });
-        if (res.ok) {
-          showSuccess("Text file created!");
-          setTimeout(() => location.reload(), 800);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
+  /* Nav */
+  function navGo(key) {
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    const navEl = document.getElementById('nav-' + key);
+    if (navEl) navEl.classList.add('active');
+    const map = { overview:'sec-overview', files:'sec-files', upload:'sec-upload', newtext:'sec-upload' };
+    const target = document.getElementById(map[key]);
+    if (target) target.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
 
-    async function loadFiles() {
-      const res = await fetch("/api/files");
-      const files = await res.json();
-      const list = document.getElementById("fileList");
-      list.innerHTML = "";
+  /* Tabs */
+  function switchTab(t) {
+    document.getElementById('tabFile').classList.toggle('active', t === 'file');
+    document.getElementById('tabText').classList.toggle('active', t === 'text');
+    document.getElementById('secFile').classList.toggle('active', t === 'file');
+    document.getElementById('secText').classList.toggle('active', t === 'text');
+  }
 
+  /* Drag & drop */
+  const dz = document.getElementById('dropZone');
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('over');
+    if (e.dataTransfer.files.length) { document.getElementById('fileInput').files = e.dataTransfer.files; onFileSelect(); }
+  });
+
+  function onFileSelect() {
+    const f = document.getElementById('fileInput').files[0];
+    if (!f) return;
+    document.getElementById('filePillText').textContent = `${f.name}  ·  ${(f.size/1024).toFixed(1)} KB`;
+    document.getElementById('filePill').style.display = 'flex';
+  }
+
+  /* Upload */
+  async function doUpload() {
+    const inp = document.getElementById('fileInput');
+    const btn = document.getElementById('uploadBtn');
+    if (!inp.files.length) { toast('Select a file first', true); return; }
+    btn.disabled = true; btn.textContent = 'Uploading…';
+    const fd = new FormData(); fd.append('file', inp.files[0]);
+    try {
+      const r = await fetch('/api/upload', {method:'POST', body:fd});
+      if (r.ok) { toast('Uploaded!'); setTimeout(()=>location.reload(),900); }
+      else toast('Upload failed', true);
+    } catch { toast('Network error', true); }
+    btn.disabled = false; btn.textContent = 'Upload File';
+  }
+
+  /* Text upload */
+  async function doTextUpload(e) {
+    e.preventDefault();
+    const btn = document.getElementById('textBtn'); btn.disabled = true; btn.textContent = 'Saving…';
+    const form = e.target;
+    const blob = new Blob([form.content.value], {type:'text/plain'});
+    const file = new File([blob], form.filename.value, {type:'text/plain'});
+    const fd = new FormData(); fd.append('file', file);
+    try {
+      const r = await fetch('/api/upload', {method:'POST', body:fd});
+      if (r.ok) { toast('Created!'); setTimeout(()=>location.reload(),900); }
+      else toast('Failed', true);
+    } catch { toast('Network error', true); }
+    btn.disabled = false; btn.textContent = 'Save Text File';
+  }
+
+  /* Icon helper */
+  function iconFor(name, mime) {
+    if (mime === 'text/plain') return {e:'📝',c:'fi-txt'};
+    const ext = name.split('.').pop().toLowerCase();
+    if (['jpg','jpeg','png','gif','webp','svg','avif'].includes(ext)) return {e:'🖼️',c:'fi-img'};
+    if (['pdf'].includes(ext)) return {e:'📕',c:'fi-doc'};
+    if (['doc','docx'].includes(ext)) return {e:'📘',c:'fi-doc'};
+    if (['xls','xlsx','csv'].includes(ext)) return {e:'📗',c:'fi-doc'};
+    if (['zip','rar','tar','gz','7z'].includes(ext)) return {e:'🗜️',c:'fi-zip'};
+    if (['mp3','wav','ogg'].includes(ext)) return {e:'🎵',c:'fi-other'};
+    if (['mp4','mov','avi','mkv'].includes(ext)) return {e:'🎬',c:'fi-other'};
+    return {e:'📄',c:'fi-other'};
+  }
+
+  /* Load files */
+  async function loadFiles() {
+    try {
+      const r = await fetch('/api/files');
+      const files = await r.json();
+      const total = files.length;
+      const texts = files.filter(f => f.mimetype === 'text/plain').length;
+      document.getElementById('countTotal').textContent = total;
+      document.getElementById('countText').textContent  = texts;
+      document.getElementById('countOther').textContent = total - texts;
+      document.getElementById('filesBadge').textContent = `${total} file${total!==1?'s':''}`;
+      const list = document.getElementById('fileList');
+      if (!total) { list.innerHTML = `<li><div class="empty"><div class="empty-ico">📂</div><h3>No files yet</h3><p>Upload a file or create a text file to get started.</p></div></li>`; return; }
+      list.innerHTML = '';
       files.forEach(file => {
-        const isText = file.mimetype === "text/plain";
-        const li = document.createElement("li");
-
+        const isText = file.mimetype === 'text/plain';
+        const {e, c} = iconFor(file.filename, file.mimetype);
+        const li = document.createElement('li');
         li.innerHTML = `
-          <div class="file-item-header">
-            <span class="file-name">${file.filename}</span>
-            <div class="file-actions">
+          <div class="file-row">
+            <div class="file-icon ${c}">${e}</div>
+            <div class="file-meta">
+              <div class="file-name">${file.filename}</div>
+              <div class="file-type">${file.mimetype || 'unknown'}</div>
+            </div>
+            <div class="file-btns">
               ${isText ? `
-                <button onclick="toggleText('${file.id}')">Preview / Edit</button>
-                <button onclick="copyText('${file.id}')">Copy</button>
-                <button onclick="saveText('${file.id}')">Save</button>
-              ` : ""}
-              <a href="/api/files/download/${file.id}">Download</a>
-              <button onclick="deleteFile('${file.id}')">Delete</button>
+                <button class="fbtn" onclick="togglePreview('${file.id}',this)">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Preview
+                </button>
+                <button class="fbtn" onclick="copyText('${file.id}')">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy
+                </button>
+                <button class="fbtn" onclick="saveText('${file.id}')">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save
+                </button>` : ''}
+              <a href="/api/files/download/${file.id}" class="fbtn">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>Download
+              </a>
+              <button class="fbtn del" onclick="delFile('${file.id}')">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>Delete
+              </button>
             </div>
           </div>
-          ${isText ? `<textarea id="text-${file.id}" class="text-content" readonly></textarea>` : ""}
+          ${isText ? `<textarea id="ta-${file.id}" class="preview-area"></textarea>` : ''}
         `;
         list.appendChild(li);
       });
-    }
+    } catch(err) { console.error(err); }
+  }
 
-    async function deleteFile(id) {
-      if (!confirm("Delete this file?")) return;
-      const res = await fetch(`/api/files/delete/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        showSuccess("File deleted!");
-        setTimeout(() => location.reload(), 600);
-      }
+  async function togglePreview(id, btn) {
+    const ta = document.getElementById('ta-'+id);
+    if (ta.style.display === 'block') {
+      ta.style.display = 'none';
+      btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Preview`;
+      return;
     }
-
-    function showSuccess(msg) {
-      const el = document.getElementById("successMessage");
-      el.textContent = msg;
-      el.classList.add("show");
-      setTimeout(() => el.classList.remove("show"), 3000);
+    if (!ta.dataset.loaded) {
+      try {
+        const r = await fetch(`/api/files/content/${id}`); const d = await r.json();
+        ta.value = d.content || ''; ta.dataset.loaded = '1';
+      } catch { ta.value = '[Unable to load]'; }
     }
+    ta.style.display = 'block';
+    btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><line x1="1" y1="1" x2="23" y2="23"/></svg>Hide`;
+  }
 
-    window.onload = loadFiles;
-  </script>
+  function copyText(id) {
+    const ta = document.getElementById('ta-'+id);
+    if (ta?.value) { navigator.clipboard.writeText(ta.value); toast('Copied!'); }
+    else toast('Open preview first', true);
+  }
+
+  async function saveText(id) {
+    const ta = document.getElementById('ta-'+id);
+    if (!ta) return;
+    try {
+      const r = await fetch(`/api/files/update/${id}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({content:ta.value})});
+      r.ok ? toast('Saved!') : toast('Save failed', true);
+    } catch { toast('Network error', true); }
+  }
+
+  async function delFile(id) {
+    if (!confirm('Delete this file? This cannot be undone.')) return;
+    try {
+      const r = await fetch(`/api/files/delete/${id}`, {method:'DELETE'});
+      if (r.ok) { toast('Deleted'); setTimeout(()=>location.reload(),700); }
+      else toast('Delete failed', true);
+    } catch { toast('Network error', true); }
+  }
+
+  function toast(msg, isErr=false) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.toggle('err', isErr); t.classList.add('show');
+    clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 2800);
+  }
+
+  window.onload = loadFiles;
+</script>
 </body>
 </html>
